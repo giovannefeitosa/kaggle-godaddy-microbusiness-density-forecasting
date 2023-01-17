@@ -92,4 +92,4 @@ class TrainCSV:
         return fig
 
     def counties_dropdown_options(self):
-        return self.df['cfips']
+        return self.df['cfips'].unique()
