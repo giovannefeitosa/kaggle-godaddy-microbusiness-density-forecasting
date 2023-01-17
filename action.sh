@@ -5,10 +5,16 @@ function main() {
   local param1="$2"
   export PROJECT_ROOT="$(pwd)"
 
+  local pyt="python"
+
+  if [ -z "$(which python)" ]; then
+    pyt="python3"
+  fi
+
   case "$action" in
     "run")
       # run app
-      python src/dashapp.py
+      $pyt src/dashapp.py
       ;;
     "download")
       local DOWNLOAD_FILE="io/dataset/godaddy-microbusiness-density-forecasting.zip"
