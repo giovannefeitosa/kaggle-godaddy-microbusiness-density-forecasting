@@ -10,7 +10,7 @@ import pandas as pd
 # app = Dash(__name__, external_stylesheets=external_stylesheets)
 app = Dash(__name__)
 
-df = pd.read_csv('../io/dataset/train.csv')
+df = pd.read_csv('io/dataset/train.csv')
 
 # create a dataset that looks like this: cfips, microbusinessDensity
 cfips = df['cfips'].unique()
