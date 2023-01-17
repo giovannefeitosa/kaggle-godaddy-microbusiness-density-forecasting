@@ -18,7 +18,7 @@ class TrainCSV:
         # zerofill cfips to 5 digits
         self.df['cfips'] = self.df['cfips'].apply(lambda x: x.zfill(5))
 
-    def counties_density_map_fig(self):
+    def counties_density_map_fig(self, cfip=None):
         # get only cfips and microbusiness_density columns
         newdf = self.df[['cfips', 'microbusiness_density']]
         # group by cfips and get the mean
@@ -26,10 +26,21 @@ class TrainCSV:
             .mean() \
             .reset_index(drop=False) \
             .sort_values(by='microbusiness_density', ascending=False)
+        if cfip is None or cfip == '':
+            color = 'microbusiness_density'
+            color_continuous_scale = 'blugrn'
+            color_discrete_map = None
+        else:
+            newdf['is_current'] = newdf['cfips'] == cfip
+            color = 'is_current'
+            color_continuous_scale = None
+            color_discrete_map = {True: 'blue', False: 'gray'}
         # create figure
-        fig = px.choropleth_mapbox(newdf, geojson=self.countiesgeo, locations='cfips', color='microbusiness_density',
-                                   color_continuous_scale="blugrn",
+        fig = px.choropleth_mapbox(newdf, geojson=self.countiesgeo, locations='cfips', color=color,
+                                   # color_continuous_scale="blugrn",
                                    # color_continuous_scale="Viridis",
+                                   color_continuous_scale=color_continuous_scale,
+                                   color_discrete_map=color_discrete_map,
                                    range_color=(0, 7),
                                    mapbox_style="carto-positron",
                                    zoom=3, center={"lat": 37.0902, "lon": -95.7129},
@@ -71,6 +82,7 @@ class TrainCSV:
         newdf['is_current'] = newdf['cfips'].apply(lambda x: x == cfip)
         # create figure
         fig = px.line(newdf, x='date', y='microbusiness_density',
+                      custom_data=['cfips'],
                       title='Microbusiness Density in ' + cfip,
                       range_y=[0, maxrange],
                       color='is_current',

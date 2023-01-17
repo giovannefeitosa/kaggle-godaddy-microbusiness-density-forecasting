@@ -32,11 +32,16 @@ app.layout = html.Div(
 
         html.Div(
             [
-                dcc.Loading(
-                    id="loading-1",
-                    type="default",
-                    children=html.Div(id="county-line-container"),
+                html.Div(
+                    id="county-line-container",
+                    children=dcc.Graph(id='county-line'),
                 ),
+                # dcc.Loading(
+                #     id="loading-1",
+                #     type="default",
+                #     children=html.Div(id="county-line-container",
+                #                       children=dcc.Graph(id='county-line'),),
+                # ),
             ],
             style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}
         ),
@@ -44,27 +49,39 @@ app.layout = html.Div(
 )
 
 
-@app.callback(
+@ app.callback(
     Output('counties-dropdown', 'value'),
-    # Output('counties-density-map', 'figure'),
     Input('counties-density-map', 'hoverData'),
+    Input('county-line', 'hoverData'),
 )
-def update_county_line_loading(hoverData):
-    if hoverData is None:
-        return '08003'
-    cfip = hoverData['points'][0]['location']
+def update_county_line_loading(dmHoverData, clHoverData):
+    cfip = ''
+    if dmHoverData is None and clHoverData is not None:
+        cfip = clHoverData['points'][0]['customdata'][0]
+    elif dmHoverData is not None and clHoverData is None:
+        cfip = dmHoverData['points'][0]['location']
     return cfip
 
 
-@app.callback(
-    Output('county-line-container', 'children'),
+@ app.callback(
+    Output('county-line', 'figure'),
+    Output('counties-density-map', 'figure'),
     Input('counties-dropdown', 'value'),
 )
 def update_county_line(cfip):
-    if cfip is None:
-        return []
-    # cfip = hoverData['points'][0]['location']
-    return dcc.Graph(id='county-line', figure=traincsv.county_line_comparison_fig(cfip),)
+    # if cfip is None or cfip == '':
+    #    return None, traincsv.counties_density_map_fig()
+    return traincsv.county_line_comparison_fig(cfip), traincsv.counties_density_map_fig(cfip)
+
+
+# @app.callback(
+#     Output('counties-dropdown', 'value'),
+#     Input('county-line', 'hoverData'),
+# )
+# def hover_county_line(hoverData):
+#     if hoverData is None:
+#         return '08003'
+#     return hoverData['points'][0]['customdata']
 
 
 if __name__ == '__main__':
