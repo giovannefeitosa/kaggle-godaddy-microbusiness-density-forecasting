@@ -17,10 +17,17 @@ function main() {
       $pyt src/dashapp.py
       ;;
     "download")
-      local DOWNLOAD_FILE="io/dataset/godaddy-microbusiness-density-forecasting.zip"
+      echo "$PROJECT_ROOT"
+      local DOWNLOAD_FILE="$PROJECT_ROOT/io/dataset/godaddy-microbusiness-density-forecasting.zip"
       kaggle competitions download -c godaddy-microbusiness-density-forecasting -p io/dataset
-      unzip -f "$DOWNLOAD_FILE" -d io/dataset
-      rm -f "$DOWNLOAD_FILE"
+      unzip -f "$DOWNLOAD_FILE" -d "$PROJECT_ROOT/io/dataset"
+      if [ -f "$PROJECT_ROOT/io/dataset/train.csv" ]; then
+        echo "ok. File $DOWNLOAD_FILE downloaded and extracted"
+        rm -f "$DOWNLOAD_FILE"
+      else
+        echo ""
+        echo "ERROR: File $DOWNLOAD_FILE could not be extracted"
+      fi
       ;;
     *)
       echo "Invalid action: $action"
