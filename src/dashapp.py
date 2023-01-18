@@ -32,16 +32,16 @@ app.layout = html.Div(
 
         html.Div(
             [
-                html.Div(
-                    id="county-line-container",
-                    children=dcc.Graph(id='county-line'),
-                ),
-                # dcc.Loading(
-                #     id="loading-1",
-                #     type="default",
-                #     children=html.Div(id="county-line-container",
-                #                       children=dcc.Graph(id='county-line'),),
+                # html.Div(
+                #     id="county-line-container",
+                #     children=dcc.Graph(id='county-line'),
                 # ),
+                dcc.Loading(
+                    id="loading-1",
+                    type="default",
+                    children=html.Div(id="county-line-container",
+                                      children=dcc.Graph(id='county-line'),),
+                ),
             ],
             style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}
         ),
@@ -51,15 +51,12 @@ app.layout = html.Div(
 
 @ app.callback(
     Output('counties-dropdown', 'value'),
-    Input('counties-density-map', 'hoverData'),
-    Input('county-line', 'hoverData'),
+    Input('counties-density-map', 'clickData'),
 )
-def update_county_line_loading(dmHoverData, clHoverData):
+def update_county_line_loading(dmClickData):
     cfip = ''
-    if dmHoverData is None and clHoverData is not None:
-        cfip = clHoverData['points'][0]['customdata'][0]
-    elif dmHoverData is not None and clHoverData is None:
-        cfip = dmHoverData['points'][0]['location']
+    if dmClickData is not None:
+        cfip = dmClickData['points'][0]['location']
     return cfip
 
 
@@ -71,7 +68,8 @@ def update_county_line_loading(dmHoverData, clHoverData):
 def update_county_line(cfip):
     # if cfip is None or cfip == '':
     #    return None, traincsv.counties_density_map_fig()
-    return traincsv.county_line_comparison_fig(cfip), traincsv.counties_density_map_fig(cfip)
+    # return traincsv.county_line_comparison_fig(cfip), traincsv.counties_density_map_fig(cfip)
+    return traincsv.county_line_fig(cfip), traincsv.counties_density_map_fig(cfip)
 
 
 # @app.callback(
