@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import numpy as np
 import pandas as pd
 from urllib.request import urlopen
@@ -14,10 +15,7 @@ def download():
             cfips = int(
                 f"{feature['properties']['STATE']}{feature['properties']['COUNTY']}")
             rawcoordinates = feature['geometry']['coordinates']
-            if len(rawcoordinates) > 1:
-                raise Exception(
-                    f"More than one coordinate set found. cfips={cfips} len={len(rawcoordinates)} len2={len(rawcoordinates[0][0])} centroid={_getCentroidCoordinates(rawcoordinates[0][0])}")
-            lat, lon = _getCentroidCoordinates(rawcoordinates[0])
+            lat, lon = _getCentroidCoordinates(rawcoordinates)
             ds.append([cfips, lat, lon])
         # save to pandas csv file
         df = pd.DataFrame(ds, columns=['cfips', 'lat', 'lon'])
@@ -26,9 +24,21 @@ def download():
 
 
 def _getCentroidCoordinates(coordinates):
-    # returns (lat, lon)
-    centroid = np.mean(np.array(coordinates), axis=0)
+    centroid = np.mean(
+        np.array(_flatten(coordinates)).reshape(-1, 2), axis=0)
     return centroid[1], centroid[0]
+
+# https://stackabuse.com/python-how-to-flatten-list-of-lists/
+
+
+def _flatten(list_of_lists):
+    flat = ()
+    for element in list_of_lists:
+        if isinstance(element, list):
+            flat += _flatten(element)
+        else:
+            flat += (element,)
+    return flat
 
 
 if __name__ == '__main__':
