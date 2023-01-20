@@ -3,3 +3,4 @@ plotly
 dash
 dash_daq
 scikit-learn
+matplotlib
